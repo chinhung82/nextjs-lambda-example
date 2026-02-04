@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Next.js Lambda Application
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: nodejs22.x
+    Environment:
+      Variables:
+        NODE_ENV: production
+
+Resources:
+  NextJsLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: dist/
+      Handler: handler.handler
+      FunctionName: nextjs-lambda-app
+      Description: Next.js Lambda handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        RootApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+
+  NextJsS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub nextjs-app-${AWS::AccountId}-${AWS::Region}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+
+  LambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref NextJsLambdaFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+
+Outputs:
+  LambdaFunctionArn:
+    Description: Lambda Function ARN
+    Value: !GetAtt NextJsLambdaFunction.Arn
+  ApiEndpoint:
+    Description: API Gateway Endpoint
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+  S3BucketName:
+    Description: S3 Bucket Name
+    Value: !Ref NextJsS3Bucket

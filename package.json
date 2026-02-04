@@ -1,26 +1,45 @@
-{
+﻿{
   "name": "nextjs-lambda-example",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "build:lambda": "node scripts/build-lambda.js",
+    "sam:local": "sam local start-api",
+    "sam:invoke": "sam local invoke",
+    "clean:lambda": "rm -rf dist dist-compiled",
+    "rebuild:lambda": "yarn clean:lambda && yarn build:lambda",
+    "test:lambda": "sam local invoke NextJsLambdaFunction",
+    "sam:start": "sam local start-api -p 3001",
+    "deploy:lambda": "yarn build:lambda && sam deploy --guided",
+    "verify:lambda": "node scripts/verify-lambda.js"
   },
   "dependencies": {
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "next": "^15.1.6",
+    "react": "^19",
+    "react-dom": "^19",
     "@types/node": "^20",
     "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react-dom": "^19"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "eslint-config-next": "^15.1.6",
+    "typescript": "^5",
+    "esbuild": "^0.27.2",
+    "@types/aws-lambda": "^8.10.160",
+    "@types/jest": "^30.0.0",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.2.2"
   }
 }
