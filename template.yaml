@@ -11,13 +11,22 @@ Globals:
       Variables:
         NODE_ENV: production
 
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - staging
+      - prod
+
 Resources:
   NextJsLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: dist/
       Handler: handler.handler
-      FunctionName: nextjs-lambda-app
+      FunctionName: !Sub nextjs-lambda-app-${Environment}
       Description: Next.js Lambda handler
       Events:
         ApiEvent:
@@ -34,7 +43,7 @@ Resources:
   NextJsS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub nextjs-app-${AWS::AccountId}-${AWS::Region}
+      BucketName: !Sub nextjs-app-${Environment}-${AWS::AccountId}-${AWS::Region}
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
